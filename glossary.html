@@ -18,4 +18,28 @@ sub esp, &lt;size&gt;   ; Allocate space on the stack for local variables</code>
     <pre><code>mov esp, ebp
 pop ebp
 ret</code></pre>
+
+<h2>Local Variable (C → Assembly)</h2>
+<p>Stored on the stack. Accessed using stack-relative addressing like <code>[rbp - 0x4]</code>.</p>
+<pre><code>// C
+void func() {
+int x = 5;
+}</code></pre>
+<pre><code>; Assembly
+mov DWORD PTR [rbp - 4], 5</code></pre>
+
+<h2>Global Variable (C → Assembly)</h2>
+    <p>Stored in the <code>.data</code> or <code>.bss</code> section. Accessed via RIP-relative addressing like <code>[rip + global_x]</code>.</p>
+    <pre><code>// C
+int global_x = 10;
+
+void func() {
+    global_x = 20;
+}</code></pre>
+    <pre><code>; Assembly
+global_x:
+    .long 10          ; in the .data section
+
+foo:
+    mov DWORD PTR [rip + global_x], 20  ; assign 20 to global_x</code></pre>
   </main>
