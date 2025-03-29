@@ -1,0 +1,21 @@
+<main>
+    <h2>Function Prologue</h2>
+    <p>A function prologue is the sequence of instructions at the beginning of a function that sets up the function’s stack frame. This setup is necessary so that the function can manage its local variables and keep track of return addresses, arguments, and previous stack states.</p>
+
+    <p>In x86 assembly (32-bit), a typical function prologue looks like this:</p>
+    <pre><code>push ebp          ; Save the base pointer of the previous stack frame
+mov ebp, esp      ; Set up a new base pointer for this function
+sub esp, &lt;size&gt;   ; Allocate space on the stack for local variables</code></pre>
+
+    <p><strong>Purpose of each instruction:</strong></p>
+    <ul>
+      <li><strong>push ebp:</strong> Saves the caller's base pointer so it can be restored later.</li>
+      <li><strong>mov ebp, esp:</strong> Establishes a new base pointer for the current function. This helps access function arguments and local variables in a consistent way.</li>
+      <li><strong>sub esp, &lt;size&gt;:</strong> Reserves stack space for local variables.</li>
+    </ul>
+
+    <p>This is often matched at the end of the function with a function epilogue, which cleans up the stack:</p>
+    <pre><code>mov esp, ebp
+pop ebp
+ret</code></pre>
+  </main>
