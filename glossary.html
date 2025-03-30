@@ -1,45 +1,87 @@
 <main>
-    <h2>Function Prologue</h2>
-    <p>A function prologue is the sequence of instructions at the beginning of a function that sets up the function’s stack frame. This setup is necessary so that the function can manage its local variables and keep track of return addresses, arguments, and previous stack states.</p>
+  <h2>Function Prologue</h2>
+  <p>
+    A function prologue is the sequence of instructions at the beginning of a
+    function that sets up the function’s stack frame. This setup is necessary so
+    that the function can manage its local variables and keep track of return
+    addresses, arguments, and previous stack states.
+  </p>
 
-    <p>In x86 assembly (32-bit), a typical function prologue looks like this:</p>
-    <pre><code>push ebp          ; Save the base pointer of the previous stack frame
+  <p>In x86 assembly (32-bit), a typical function prologue looks like this:</p>
+  <pre><code>push ebp          ; Save the base pointer of the previous stack frame
 mov ebp, esp      ; Set up a new base pointer for this function
 sub esp, &lt;size&gt;   ; Allocate space on the stack for local variables</code></pre>
 
-    <p><strong>Purpose of each instruction:</strong></p>
-    <ul>
-      <li><strong>push ebp:</strong> Saves the caller's base pointer so it can be restored later.</li>
-      <li><strong>mov ebp, esp:</strong> Establishes a new base pointer for the current function. This helps access function arguments and local variables in a consistent way.</li>
-      <li><strong>sub esp, &lt;size&gt;:</strong> Reserves stack space for local variables.</li>
-    </ul>
+  <p><strong>Purpose of each instruction:</strong></p>
+  <ul>
+    <li>
+      <strong>push ebp:</strong> Saves the caller's base pointer so it can be
+      restored later.
+    </li>
+    <li>
+      <strong>mov ebp, esp:</strong> Establishes a new base pointer for the
+      current function. This helps access function arguments and local variables
+      in a consistent way.
+    </li>
+    <li>
+      <strong>sub esp, &lt;size&gt;:</strong> Reserves stack space for local
+      variables.
+    </li>
+  </ul>
 
-    <p>This is often matched at the end of the function with a function epilogue, which cleans up the stack:</p>
-    <pre><code>mov esp, ebp
-pop ebp
-ret</code></pre>
+  <p>
+    This is often matched at the end of the function with a function epilogue,
+    which cleans up the stack:
+  </p>
+  <pre><code>
+mov esp, ebp    ; Clean up local stack space
+pop ebp         ; Clean up local stack space
+ret             ; Return to caller
+</code></pre>
 
-<h2>Local Variable (C → Assembly)</h2>
-<p>Stored on the stack. Accessed using stack-relative addressing like <code>[rbp - 0x4]</code>.</p>
-<pre><code>// C
+  <h2>Local Variable (C → Assembly)</h2>
+  <p>
+    Stored on the stack. Accessed using stack-relative addressing like
+    <code>[rbp - 0x4]</code>.
+  </p>
+  <pre><code>// C
 void func() {
 int x = 5;
 }</code></pre>
-<pre><code>; Assembly
+  <pre><code>; Assembly
 mov DWORD PTR [rbp - 4], 5</code></pre>
 
-<h2>Global Variable (C → Assembly)</h2>
-    <p>Stored in the <code>.data</code> or <code>.bss</code> section. Accessed via RIP-relative addressing like <code>[rip + global_x]</code>.</p>
-    <pre><code>// C
+  <h2>Global Variable (C → Assembly)</h2>
+  <p>
+    Stored in the <code>.data</code> or <code>.bss</code> section. Accessed via
+    RIP-relative addressing like <code>[rip + global_x]</code>.
+  </p>
+  <pre><code>// C
 int global_x = 10;
 
 void func() {
     global_x = 20;
 }</code></pre>
-    <pre><code>; Assembly
+  <pre><code>; Assembly
 global_x:
     .long 10          ; in the .data section
 
 foo:
     mov DWORD PTR [rip + global_x], 20  ; assign 20 to global_x</code></pre>
-  </main>
+
+  <h2>mov vs lea</h2>
+  <p>
+    <code>mov rax, [rbx]</code> copies the value
+    <em>at the memory address pointed to by</em> <code>rbx</code> into
+    <code>rax</code>. In other words, it dereferences the pointer in
+    <code>rbx</code>.
+  </p>
+  <p>
+    <code>lea rax, [rbx]</code> does <em>not</em> dereference memory. It simply
+    loads the effective address (in this case, the same as <code>rbx</code>)
+    into <code>rax</code>. It is used for address calculations.
+  </p>
+  <pre><code>; Example:
+mov rax, [rbx]    ; rax = *rbx (load the value pointed to by rbx)
+lea rax, [rbx]    ; rax = rbx (just copy the address)</code></pre>
+</main>
