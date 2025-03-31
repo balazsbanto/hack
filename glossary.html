@@ -84,4 +84,37 @@ foo:
   <pre><code>; Example:
 mov rax, [rbx]    ; rax = *rbx (load the value pointed to by rbx)
 lea rax, [rbx]    ; rax = rbx (just copy the address)</code></pre>
+
+<h2>Heap Memory (Assembly)</h2>
+<p>
+  The heap is a memory region used for dynamic allocation (e.g., <code>malloc</code> in C). Unlike the stack, it is manually managed and persists until explicitly freed.
+</p>
+<p>
+  You can allocate heap memory by calling <code>malloc</code> (libc) or directly using the <code>mmap</code> syscall.
+</p>
+
+<p><strong>Example using <code>malloc</code>:</strong></p>
+<pre><code>mov edi, 32       ; malloc(32)
+call malloc       ; rax = pointer to heap memory
+
+mov qword [rax], 0xdeadbeef
+mov rbx, [rax]</code></pre>
+
+<p><strong>Example using <code>syscall</code> (Linux x86_64):</strong></p>
+<pre><code>mov rax, 9        ; syscall number for mmap
+mov rdi, 0        ; addr = NULL (let kernel choose)
+mov rsi, 4096     ; length = 4096 bytes
+mov rdx, 3        ; PROT_READ | PROT_WRITE
+mov r10, 34       ; MAP_PRIVATE | MAP_ANONYMOUS
+mov r8, -1        ; fd = -1
+mov r9, 0         ; offset = 0
+syscall           ; rax = pointer to heap memory
+
+mov qword [rax], 0x12345678
+</code></pre>
+
+<p>
+  This memory remains valid until you free it manually (e.g., using <code>free</code> or another syscall).
+</p>
+
 </main>
