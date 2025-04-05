@@ -1,0 +1,187 @@
+<main>
+  <h2>Control your device via Wi-Fi</h2>
+  <p>
+    For example you can reboot your Android device remotely using ADB over
+    Wi-Fi, as long as the phone and your computer are on the
+    <strong>same Wi-Fi network</strong>.
+  </p>
+
+  <h3>Steps:</h3>
+  <ol>
+    <li>
+      Find your phone’s IP address (Settings > About phone > Status or via Wi-Fi
+      settings).
+    </li>
+    <li>
+      Run the following on your computer:
+      <pre><code>adb connect &lt;device-ip&gt;:5555</code></pre>
+    </li>
+    <li>
+      If connected successfully, reboot the phone with:
+      <pre><code>adb reboot</code></pre>
+    </li>
+  </ol>
+
+  <h3>Important Notes:</h3>
+  <ul>
+    <li>
+      ADB over Wi-Fi must be enabled beforehand (can be done over USB using
+      <code>adb tcpip 5555</code>).
+    </li>
+    <li>
+      Devices often disable ADB over Wi-Fi after reboot — you may need to
+      reconnect via USB.
+    </li>
+    <li>
+      This only works if both devices are on the same local network (e.g., same
+      router or mobile hotspot).
+    </li>
+    <li>
+      ADB does not work over the internet unless advanced port forwarding is
+      configured (not recommended for security reasons).
+    </li>
+  </ul>
+
+  <h2>SSL Pinning in Android</h2>
+  <p>
+    SSL pinning ensures that the app only trusts a specific certificate or
+    public key, preventing man-in-the-middle attacks even if a rogue CA is
+    trusted by the system.
+  </p>
+
+  <h3>1. Certificate Pinning with OkHttp</h3>
+  <pre><code>
+CertificatePinner pinner = new CertificatePinner.Builder()
+    .add("example.com", "sha256/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=")
+    .build();
+
+OkHttpClient client = new OkHttpClient.Builder()
+    .certificatePinner(pinner)
+    .build();
+  </code></pre>
+
+  <h3>2. TrustManager Override (Manual Pinning)</h3>
+  <pre><code>
+TrustManager[] trustManagers = new TrustManager[]{
+    new X509TrustManager() {
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            // Compare chain[0] with your pinned cert
+        }
+        public void checkClientTrusted(...) {}
+        public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+    }
+};
+  </code></pre>
+
+  <h3>3. Network Security Config (Android 7+)</h3>
+  <p><strong>res/xml/network_security_config.xml</strong></p>
+  <pre><code>
+&lt;network-security-config&gt;
+  &lt;domain-config&gt;
+    &lt;domain includeSubdomains="true"&gt;example.com&lt;/domain&gt;
+    &lt;pin-set expiration="2025-01-01"&gt;
+      &lt;pin digest="SHA-256"&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=&lt;/pin&gt;
+    &lt;/pin-set&gt;
+  &lt;/domain-config&gt;
+&lt;/network-security-config&gt;
+  </code></pre>
+
+  <p><strong>AndroidManifest.xml</strong></p>
+  <pre><code>
+&lt;application
+  android:networkSecurityConfig="@xml/network_security_config"&gt;
+&lt;/application&gt;
+  </code></pre>
+
+  <h3>Bypassing SSL Pinning with Frida</h3>
+  <p>
+    Frida lets you hook into Android apps at runtime to bypass SSL pinning
+    dynamically:
+  </p>
+  <pre><code class="language-js">
+// Example Frida script
+Java.perform(function() {
+    var TrustManagerImpl = Java.use("com.android.org.conscrypt.TrustManagerImpl");
+
+    TrustManagerImpl.checkTrustedRecursive.implementation = function() {
+        console.log("[+] Bypassed checkTrustedRecursive");
+        return;
+    };
+});
+  </code></pre>
+  <p>Save it as <code>ssl_bypass.js</code> and run with:</p>
+  <pre><code>frida -U -n com.example.app -l ssl_bypass.js</code></pre>
+  <p>
+    This method works best on rooted devices or emulators with Frida-server
+    running. You may need to adjust class names depending on the Android version
+    or obfuscation used.
+  </p>
+
+  <h2>Java App vs. Android App Compilation</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Target</th>
+        <th>Compilation Path</th>
+        <th>Runs On</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Java (Desktop / Server)</td>
+        <td>.java → javac → .class → JVM</td>
+        <td>JVM</td>
+      </tr>
+      <tr>
+        <td>Android App</td>
+        <td>.java → javac → .class → d8/dx → .dex → APK</td>
+        <td>ART/Dalvik</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Java Bytecode vs Android Bytecode</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Java Bytecode</th>
+        <th>Android Bytecode</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Format</td>
+        <td>.class</td>
+        <td>.dex</td>
+      </tr>
+      <tr>
+        <td>Virtual Machine</td>
+        <td>JVM</td>
+        <td>Dalvik / ART</td>
+      </tr>
+      <tr>
+        <td>Architecture</td>
+        <td>Stack-based</td>
+        <td>Register-based</td>
+      </tr>
+      <tr>
+        <td>Tooling</td>
+        <td>javac, java, javap</td>
+        <td>dx, d8, smali, baksmali</td>
+      </tr>
+      <tr>
+        <td>Instruction Set</td>
+        <td>JVM opcodes</td>
+        <td>Dalvik opcodes</td>
+      </tr>
+      <tr>
+        <td>Bytecode Viewer Tool</td>
+        <td>javap, JD-GUI</td>
+        <td>baksmali, jadx, jadx-gui</td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+</main>
