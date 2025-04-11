@@ -9,4 +9,41 @@
     alt="iOS Jailbreak Diagram"
     style="max-width: 20%; height: auto"
   />
+
+  <section>
+    <h2>Understanding iOS Frida Dump: What, Why, and How</h2>
+    <p>
+      One of the most powerful tools in iOS reverse engineering is <strong>dumping a decrypted .ipa</strong> from a running app using <code>Frida</code>.
+      This process is essential for analyzing apps downloaded from the App Store.
+    </p>
+
+    <h3>🔍 What Is It?</h3>
+    <p>
+      iOS apps from the App Store are encrypted with Apple’s <strong>FairPlay DRM</strong>.
+      Even if you manage to extract the app files from your device, the binary remains encrypted and unreadable to reverse engineering tools like
+      Ghidra, Hopper, or IDA.
+    </p>
+
+    <h3>💡 Why It’s Useful</h3>
+    <p>
+      To reverse engineer or analyze an iOS app, you need access to the app’s <strong>decrypted binary</strong>.
+      Since iOS automatically decrypts the app in memory when it runs, this gives us a perfect opportunity to intercept it.
+    </p>
+
+    <h3>🧪 How It Works</h3>
+    <ul>
+      <li>Launch the target iOS app on a jailbroken device</li>
+      <li>Use <code>Frida</code> to attach to the app's process while it's running</li>
+      <li>Frida reads the decrypted binary from memory</li>
+      <li>The binary is then reconstructed and saved as a <code>.ipa</code> or <code>.app</code> file</li>
+    </ul>
+    <p>
+      Once saved, you can open the dumped binary with your favorite reverse engineering tools.
+    </p>
+
+    <p>
+      <a href="https://github.com/AloneMonkey/frida-ios-dump" target="_blank" rel="noopener noreferrer">
+        frida-ios-dump</a> 
+    </p>
+  </section>
 </main>
