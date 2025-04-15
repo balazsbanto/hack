@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARM64 Instructions</title>
+</head>
+<body>
+    <h1>STP: Store Pair of Registers</h1>
+    <p>The <strong>STP</strong> (Store Pair) instruction in ARM64 is used to store two registers into memory in a single operation. It is commonly used to save registers onto the stack or to store data in memory efficiently.</p>
+    
+    <h2>Syntax</h2>
+    <pre><code>STP <Rt>, <Rt2>, [<BaseRegister>, #<Offset>]</code></pre>
+    
+    <h2>Parameters</h2>
+    <ul>
+        <li><code>Rt</code>: The first register to store.</li>
+        <li><code>Rt2</code>: The second register to store.</li>
+        <li><code>BaseRegister</code>: The base register that holds the memory address.</li>
+        <li><code>Offset</code>: The optional offset added to the base address.</li>
+    </ul>
+    
+    <h2>Example</h2>
+    <pre><code>
+    // Store x0 and x1 into memory at the address in x2
+    STP x0, x1, [x2]
+
+    // Store x0 and x1 into memory at the address in x2 with an offset of 16 bytes
+    STP x0, x1, [x2, #16]
+    </code></pre>
+    
+    <h2>C-Code Example</h2>
+    <p>The following C-code demonstrates a scenario that could translate to the use of the <strong>STP</strong> instruction:</p>
+    <pre><code>
+    void save_registers(uint64_t *memory, uint64_t reg1, uint64_t reg2) {
+        memory[0] = reg1; // Corresponds to storing the first register
+        memory[1] = reg2; // Corresponds to storing the second register
+    }
+    </code></pre>
+    <p>In assembly, this could translate to:</p>
+    <pre><code>
+    // Assuming x0 = memory, x1 = reg1, x2 = reg2
+    STP x1, x2, [x0]
+    </code></pre>
+    
+    <h2>Use Cases</h2>
+    <ul>
+        <li>Saving registers onto the stack during function calls.</li>
+        <li>Efficiently storing pairs of data in memory.</li>
+    </ul>
+    
+    <h2>Function Call Context</h2>
+    <p>This is common to see when calling functions. For example, when a function is called, the caller may need to save certain registers onto the stack to preserve their values. This is often done using the <strong>STP</strong> instruction to save multiple registers efficiently:</p>
+    <pre><code>
+    // Save x29 (frame pointer) and x30 (link register) onto the stack
+    STP x29, x30, [sp, #-16]!
+    
+    // Restore x29 and x30 from the stack
+    LDP x29, x30, [sp], #16
+    </code></pre>
+    <p>In this example, the <strong>STP</strong> instruction is used to save the frame pointer and link register at the beginning of a function, and the <strong>LDP</strong> (Load Pair) instruction is used to restore them at the end of the function.</p>
+
+    <h1>LDR: Load Register</h1>
+    <p>The <strong>LDR</strong> (Load Register) instruction in ARM64 is used to load a value from memory into a register. It is commonly used to retrieve data from memory for processing.</p>
+
+    <h2>Syntax</h2>
+    <pre><code>LDR <Rt>, [<BaseRegister>, #<Offset>]</code></pre>
+
+    <h2>Parameters</h2>
+    <ul>
+        <li><code>Rt</code>: The register to load the value into.</li>
+        <li><code>BaseRegister</code>: The base register that holds the memory address.</li>
+        <li><code>Offset</code>: The optional offset added to the base address.</li>
+    </ul>
+
+    <h2>Example</h2>
+    <pre><code>
+    // Load the value at the address in x2 into x0
+    LDR x0, [x2]
+
+    // Load the value at the address in x2 with an offset of 16 bytes into x0
+    LDR x0, [x2, #16]
+    </code></pre>
+
+    <h2>C-Code Example</h2>
+    <p>The following C-code demonstrates a scenario that could translate to the use of the <strong>LDR</strong> instruction:</p>
+    <pre><code>
+    uint64_t load_register(uint64_t *memory) {
+        return memory[0]; // Corresponds to loading the value from memory
+    }
+    </code></pre>
+    <p>In assembly, this could translate to:</p>
+    <pre><code>
+    // Assuming x0 = memory, x1 = destination register
+    LDR x1, [x0]
+    </code></pre>
+
+    <h2>Use Cases</h2>
+    <ul>
+        <li>Loading data from memory into registers for processing.</li>
+        <li>Accessing variables stored in memory.</li>
+    </ul>
+
+    <h2>Function Call Context</h2>
+    <p>This is common to see when accessing function arguments or local variables stored in memory. For example, when a function accesses a variable stored on the stack, the <strong>LDR</strong> instruction is often used:</p>
+    <pre><code>
+    // Load a variable from the stack into x0
+    LDR x0, [sp, #8]
+    </code></pre>
+    <p>In this example, the <strong>LDR</strong> instruction is used to load a value from the stack into a register for further processing.</p>
+
+    <h1>STR: Store Register</h1>
+    <p>The <strong>STR</strong> (Store Register) instruction in ARM64 is used to store the value of a register into memory. It is commonly used to save data from a register into a specific memory location.</p>
+
+    <h2>Syntax</h2>
+    <pre><code>STR <Rt>, [<BaseRegister>, #<Offset>]</code></pre>
+
+    <h2>Parameters</h2>
+    <ul>
+        <li><code>Rt</code>: The register whose value is to be stored.</li>
+        <li><code>BaseRegister</code>: The base register that holds the memory address.</li>
+        <li><code>Offset</code>: The optional offset added to the base address.</li>
+    </ul>
+
+    <h2>Example</h2>
+    <pre><code>
+    // Store the value of x0 into memory at the address in x2
+    STR x0, [x2]
+
+    // Store the value of x0 into memory at the address in x2 with an offset of 16 bytes
+    STR x0, [x2, #16]
+    </code></pre>
+
+    <h2>C-Code Example</h2>
+    <p>The following C-code demonstrates a scenario that could translate to the use of the <strong>STR</strong> instruction:</p>
+    <pre><code>
+    void store_register(uint64_t *memory, uint64_t value) {
+        memory[0] = value; // Corresponds to storing the value into memory
+    }
+    </code></pre>
+    <p>In assembly, this could translate to:</p>
+    <pre><code>
+    // Assuming x0 = memory, x1 = value
+    STR x1, [x0]
+    </code></pre>
+
+    <h2>Use Cases</h2>
+    <ul>
+        <li>Saving data from a register into memory.</li>
+        <li>Storing variables or results into specific memory locations.</li>
+    </ul>
+</body>
+</html>
+
+
+<h1>CSET: Conditional Set</h1>
+<p>The <strong>CSET</strong> (Conditional Set) instruction in ARM64 is used to set a register to 1 or 0 based on the condition flags. It is commonly used for conditional operations where a boolean value is needed.</p>
+
+<h2>Syntax</h2>
+<pre><code>CSET <Rd>, <Condition></code></pre>
+
+<h2>Parameters</h2>
+<ul>
+    <li><code>Rd</code>: The destination register to set.</li>
+    <li><code>Condition</code>: The condition under which the register is set to 1. If the condition is not met, the register is set to 0.</li>
+</ul>
+
+<h2>Example</h2>
+<pre><code>
+// Set x0 to 1 if the "equal" condition is true, otherwise set it to 0
+CSET x0, EQ
+
+// Set x1 to 1 if the "greater than" condition is true, otherwise set it to 0
+CSET x1, GT
+</code></pre>
+
+<h2>C-Code Example</h2>
+<p>The following C-code demonstrates a scenario that could translate to the use of the <strong>CSET</strong> instruction:</p>
+<pre><code>
+uint64_t conditional_set(bool condition) {
+    return condition ? 1 : 0; // Corresponds to setting the register based on a condition
+}
+</code></pre>
+<p>In assembly, this could translate to:</p>
+<pre><code>
+// Assuming the condition flags are set appropriately
+CSET x0, EQ
+</code></pre>
+
+<h2>Use Cases</h2>
+<ul>
+    <li>Setting a register to a boolean value based on a condition.</li>
+    <li>Implementing conditional logic in assembly code.</li>
+</ul>
+
+<h2>Function Call Context</h2>
+<p>This is common to see when evaluating conditions in low-level code. For example, when a comparison is made, the <strong>CSET</strong> instruction can be used to store the result of the comparison as a boolean value:</p>
+<pre><code>
+// Compare x0 and x1, and set x2 to 1 if x0 is less than x1, otherwise set it to 0
+CMP x0, x1
+CSET x2, LT
+</code></pre>
+<p>In this example, the <strong>CMP</strong> instruction sets the condition flags based on the comparison, and the <strong>CSET</strong> instruction uses those flags to set the value of the destination register.</p>
+
+<h1>ADRP: Adjust PC-relative Address</h1>
+<p>The <strong>ADRP</strong> (Adjust PC-relative Address) instruction in ARM64 is used to calculate a page-aligned address relative to the program counter (PC). It is commonly used for accessing global variables or constants in a position-independent manner.</p>
+
+<h2>Syntax</h2>
+<pre><code>ADRP <Rd>, <Label></code></pre>
+
+<h2>Parameters</h2>
+<ul>
+    <li><code>Rd</code>: The destination register to hold the calculated address.</li>
+    <li><code>Label</code>: The label or address to calculate the page-aligned address for.</li>
+</ul>
+
+<h2>Example</h2>
+<pre><code>
+// Calculate the page-aligned address of a label and store it in x0
+ADRP x0, my_label
+</code></pre>
+
+<h2>C-Code Example</h2>
+<p>The following C-code demonstrates a scenario that could translate to the use of the <strong>ADRP</strong> instruction:</p>
+<pre><code>
+extern uint64_t global_variable;
+
+uint64_t *get_global_address() {
+    return &global_variable; // Corresponds to calculating the address of a global variable
+}
+</code></pre>
+<p>In assembly, this could translate to:</p>
+<pre><code>
+// Assuming my_label corresponds to the address of global_variable
+ADRP x0, my_label
+</code></pre>
+
+<h2>Use Cases</h2>
+<ul>
+    <li>Accessing global variables or constants in a position-independent manner.</li>
+    <li>Calculating addresses for large data structures or memory-mapped regions.</li>
+</ul>
+
+<h2>Function Call Context</h2>
+<p>This is common to see when accessing global variables or constants in position-independent code. For example, when a global variable is accessed, the <strong>ADRP</strong> instruction is often used to calculate the base address:</p>
+<pre><code>
+// Calculate the page-aligned address of a global variable
+ADRP x0, global_variable
+
+// Add the offset within the page to get the exact address
+ADD x0, x0, :lo12:global_variable
+</code></pre>
+<p>In this example, the <strong>ADRP</strong> instruction calculates the page-aligned address, and the <strong>ADD</strong> instruction adds the offset within the page to get the exact address of the global variable.</p>o
