@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const projects = [
+                {
+                    name: "Ticket Buyer Bot",
+                    url: "https://github.com/balazsbanto/ticket-buyer-bot",
+                    description: "Auto-lock tickets on TicketSwap right from the notification."
+                },
+                // Add more projects here
+            ];
+
+            const projectList = document.getElementById("project-list");
+            projects.forEach(project => {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `<a href="${project.url}" target="_blank">${project.name}</a> - ${project.description}`;
+                projectList.appendChild(listItem);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>My Projects</h1>
+    <ul id="project-list">
+        <!-- Projects will be dynamically added here -->
+    </ul>
+</body>
+</html>
