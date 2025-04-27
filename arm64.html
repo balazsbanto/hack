@@ -251,3 +251,194 @@ ADRP x0, global_variable
 ADD x0, x0, :lo12:global_variable
 </code></pre>
 <p>In this example, the <strong>ADRP</strong> instruction calculates the page-aligned address, and the <strong>ADD</strong> instruction adds the offset within the page to get the exact address of the global variable.</p>o
+
+
+<h1>Data Sizes in ARM64</h1>
+<p>In ARM64, data sizes are often referred to using specific terms. Here are the common data sizes and their corresponding examples:</p>
+<ul>
+    <li><strong>8 Bits</strong> = Byte (2 Hex digits) Example: <code>0x44</code></li>
+    <li><strong>16 Bits</strong> = Halfword (4 Hex digits) Example: <code>0xB0C8</code></li>
+    <li><strong>32 Bits</strong> = Word (8 Hex digits) Example: <code>0xDEDD0020</code></li>
+    <li><strong>64 Bits</strong> = Double-Word (16 Hex digits) Example: <code>0xDEADBEEFCAFEBABE</code></li>
+</ul>
+
+<h1>General Purpose Registers in AArch64</h1>
+<p>AArch64, the 64-bit execution state of the ARMv8 architecture, provides a set of 31 general-purpose registers (GPRs) for use in various operations. These registers are versatile and can be used for data storage, arithmetic operations, addressing, and more.</p>
+
+<h2>Register Overview</h2>
+<ul>
+    <li><strong>x0 - x30</strong>: These are the 31 general-purpose registers, each 64 bits wide. They can also be accessed as 32-bit registers using the <code>w0 - w30</code> names.</li>
+    <li><strong>x31</strong>: This register is used as the stack pointer (<code>SP</code>) in certain contexts or as the zero register (<code>ZR</code>) in others, depending on the instruction.</li>
+</ul>
+
+<h2>Special Registers</h2>
+<ul>
+    <li><strong>x0 - x7</strong>: Used for passing arguments to functions and returning values from functions.</li>
+    <li><strong>x8</strong>: Known as the indirect result location register, often used for returning additional results from functions.</li>
+    <li><strong>x9 - x15</strong>: Temporary registers, also known as caller-saved registers.</li>
+    <li><strong>x19 - x28</strong>: Callee-saved registers, which must be preserved across function calls.</li>
+    <li><strong>x29</strong>: The frame pointer (<code>FP</code>), used to maintain the stack frame for the current function.</li>
+    <li><strong>x30</strong>: The link register (<code>LR</code>), used to store the return address for function calls.</li>
+</ul>
+
+<h2>Zero and Stack Pointer Register</h2>
+<p>The <strong>x31</strong> register has a dual role:</p>
+<ul>
+    <li>When used as the zero register (<code>ZR</code>), it always reads as 0 and writes to it are ignored.</li>
+    <li>When used as the stack pointer (<code>SP</code>), it points to the current stack location.</li>
+</ul>
+
+<h2>C-Code and Assembly Examples for All Registers</h2>
+
+<h3>Example 1: Function Arguments and Return Values (x0 - x7)</h3>
+<p><strong>C-Code:</strong></p>
+<pre><code>
+uint64_t sum_of_args(uint64_t a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h) {
+    return a + b + c + d + e + f + g + h;
+}
+</code></pre>
+<p><strong>Assembly:</strong></p>
+<pre><code>
+// x0 = a, x1 = b, x2 = c, x3 = d, x4 = e, x5 = f, x6 = g, x7 = h
+ADD x0, x0, x1  // x0 = a + b
+ADD x0, x0, x2  // x0 = (a + b) + c
+ADD x0, x0, x3  // x0 = ((a + b) + c) + d
+ADD x0, x0, x4  // x0 = (((a + b) + c) + d) + e
+ADD x0, x0, x5  // x0 = ((((a + b) + c) + d) + e) + f
+ADD x0, x0, x6  // x0 = (((((a + b) + c) + d) + e) + f) + g
+ADD x0, x0, x7  // x0 = ((((((a + b) + c) + d) + e) + f) + g) + h
+RET
+</code></pre>
+
+<h3>Example 2: Temporary Registers (x9 - x15)</h3>
+<p><strong>C-Code:</strong></p>
+<pre><code>
+uint64_t complex_operation(uint64_t a, uint64_t b) {
+    uint64_t temp1 = a + b;
+    uint64_t temp2 = a * b;
+    return temp1 ^ temp2;
+}
+</code></pre>
+<p><strong>Assembly:</strong></p>
+<pre><code>
+// x0 = a, x1 = b
+ADD x9, x0, x1  // x9 = a + b (temporary register)
+MUL x10, x0, x1 // x10 = a * b (temporary register)
+EOR x0, x9, x10 // x0 = (a + b) ^ (a * b)
+RET
+</code></pre>
+
+<h3>Example 3: Callee-Saved Registers (x19 - x28)</h3>
+<p><strong>C-Code:</strong></p>
+<pre><code>
+void preserve_registers(uint64_t *memory, uint64_t value) {
+    memory[0] = value;
+}
+</code></pre>
+<p><strong>Assembly:</strong></p>
+<pre><code>
+// x0 = memory, x1 = value
+STP x19, x20, [sp, #-16]!  // Save x19 and x20 on the stack
+MOV x19, x1                // Preserve value in x19
+STR x19, [x0]              // Store value into memory
+LDP x19, x20, [sp], #16    // Restore x19 and x20 from the stack
+RET
+</code></pre>
+
+<h3>Example 4: Frame Pointer and Link Register (x29, x30)</h3>
+<p><strong>C-Code:</strong></p>
+<pre><code>
+void function_prologue_and_epilogue() {
+    // Function body
+}
+</code></pre>
+<p><strong>Assembly:</strong></p>
+<pre><code>
+// Function prologue
+STP x29, x30, [sp, #-16]!  // Save frame pointer and link register
+MOV x29, sp                // Set frame pointer
+
+// Function body
+NOP                        // Placeholder for function logic
+
+// Function epilogue
+LDP x29, x30, [sp], #16    // Restore frame pointer and link register
+RET
+</code></pre>
+
+<h3>Example 5: Zero Register and Stack Pointer (x31)</h3>
+<p><strong>C-Code:</strong></p>
+<pre><code>
+void zero_register_example(uint64_t *memory) {
+    memory[0] = 0; // Store zero into memory
+}
+</code></pre>
+<p><strong>Assembly:</strong></p>
+<pre><code>
+// x0 = memory
+STR xzr, [x0]  // Store zero (xzr) into memory
+RET
+</code></pre>
+<p><strong>Explanation:</strong> The zero register (<code>xzr</code>) always reads as 0 and writes to it are ignored.</p>
+
+<h2>Example Usage</h2>
+<pre><code>
+// Add the values in x0 and x1, store the result in x2
+ADD x2, x0, x1
+
+// Store the value in x2 to memory at the address in x3
+// Think: Put the value in x2 into the location pointed to by x3. After this, the memory at address x3 now contains whatever was in x2.
+STR x2, [x3]
+
+// Load a value from memory at the address in x3 into x4
+// Think: Take the value at the location pointed to br x3 and put it into x4. After this, x4 contains whatever was in memory at address x3. This is the opposite of STR.
+// So if you did STR x2, [x3] before this, x4 will now contain the value that was in x2.
+LDR x4, [x3]
+
+// Call a function, saving the return address in x30 (LR)
+BL my_function
+</code></pre>
+
+<h2>Use Cases</h2>
+<ul>
+    <li>Passing arguments and returning values in function calls.</li>
+    <li>Performing arithmetic and logical operations.</li>
+    <li>Accessing memory and managing the stack.</li>
+</ul>
+
+<p>The general-purpose registers in AArch64 provide flexibility and efficiency for a wide range of programming tasks, making them a cornerstone of the architecture.</p>
+
+<h1>Program Counter (PC) and Stack Pointer (SP)</h1>
+<p>The <strong>Program Counter (PC)</strong> and <strong>Stack Pointer (SP)</strong> are special-purpose registers in ARM64 that play crucial roles in program execution and memory management.</p>
+
+<h2>Program Counter (PC)</h2>
+<ul>
+    <li>The <strong>Program Counter</strong> holds the address of the next instruction to be executed.</li>
+    <li>It is automatically updated as instructions are executed, typically incrementing to point to the next sequential instruction.</li>
+    <li>Branching instructions (e.g., <code>B</code>, <code>BL</code>) modify the PC to jump to a different address, enabling control flow changes like loops and function calls.</li>
+</ul>
+
+<h2>Stack Pointer (SP)</h2>
+<ul>
+    <li>The <strong>Stack Pointer</strong> points to the top of the stack, a region of memory used for temporary storage during program execution.</li>
+    <li>It is used to manage function call frames, local variables, and return addresses.</li>
+    <li>In ARM64, the stack grows downward, meaning the SP is decremented when data is pushed onto the stack and incremented when data is popped off.</li>
+</ul>
+
+<h1>Difference Between Stack Pointer (SP) and Frame Pointer (FP)</h1>
+<p>While both the <strong>Stack Pointer (SP)</strong> and <strong>Frame Pointer (FP)</strong> are used in stack management, they serve different purposes:</p>
+<ul>
+    <li><strong>Stack Pointer (SP):</strong> Points to the current top of the stack and is updated dynamically as data is pushed or popped. It is essential for managing the stack's overall structure.</li>
+    <li><strong>Frame Pointer (FP):</strong> Points to the base of the current function's stack frame. It remains constant throughout the function's execution, providing a stable reference for accessing local variables and function arguments.</li>
+</ul>
+
+<h2>Example</h2>
+<pre><code>
+// Function prologue: Save the old frame pointer and link register, set up a new frame
+STP x29, x30, [sp, #-16]!
+MOV x29, sp
+
+// Function epilogue: Restore the old frame pointer and link register
+LDP x29, x30, [sp], #16
+</code></pre>
+<p>In this example, the <strong>SP</strong> is used to manage the stack, while the <strong>FP</strong> (x29) provides a stable reference for the current function's stack frame.</p>
