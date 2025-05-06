@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Negative Numbers Are Stored in Hex</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>How Negative Numbers Are Stored in Hex</h1>
+    <p><strong>Problem:</strong></p>
+    <p>How do we write a negative number (like -1, -2, etc.) in hex?</p>
+
+    <p>💡 <strong>Simple Answer:</strong></p>
+    <p>We use something called <em>two's complement</em>, which means:</p>
+    <p>Instead of storing a "minus" sign, we store a big number that, when read the right way, means a negative value.</p>
+
+    <h2>Example (8-bit system):</h2>
+    <p>An 8-bit number has 8 "slots", so it can hold values from:</p>
+    <ul>
+        <li>0 to 255 if unsigned</li>
+        <li>-128 to 127 if signed</li>
+    </ul>
+    <p>Now look at this:</p>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>Decimal</th>
+                <th>Binary</th>
+                <th>Hex</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>0</td>
+                <td>00000000</td>
+                <td>0x00</td>
+            </tr>
+            <tr>
+                <td>-1</td>
+                <td>11111111</td>
+                <td>0xFF</td>
+            </tr>
+            <tr>
+                <td>-2</td>
+                <td>11111110</td>
+                <td>0xFE</td>
+            </tr>
+            <tr>
+                <td>-3</td>
+                <td>11111101</td>
+                <td>0xFD</td>
+            </tr>
+            <tr>
+                <td>-128</td>
+                <td>10000000</td>
+                <td>0x80</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>So:</p>
+    <ul>
+        <li>-1 is written as <code>0xFF</code></li>
+        <li>-2 is written as <code>0xFE</code></li>
+        <li>etc.</li>
+    </ul>
+    <p>Even though <code>0xFF</code> looks like 255, computers know (based on context) that in signed 8-bit, it actually means -1.</p>
+
+    <h2>Rule of Thumb:</h2>
+    <p>If you want to find the hex for a negative number:</p>
+    <ol>
+        <li>Pick how many bits (8, 16, 32…).</li>
+        <li>Add that number to your negative number.</li>
+    </ol>
+    <p>For example:</p>
+    <ul>
+        <li>For -1 in 8-bit: <code>256 + (-1) = 255 → 0xFF</code></li>
+        <li>For -1 in 32-bit: <code>4294967296 + (-1) = 4294967295 → 0xFFFFFFFF</code></li>
+    </ul>
+
+    <h2>Simple Assembly Code Example:</h2>
+    <p>Here’s how the CPU interprets the same value differently based on context:</p>
+    <pre><code>; Assembly Code (x86, NASM syntax)
+section .data
+    a db 0xFF        ; one byte: 255 or -1 depending on context
+
+section .text
+    global _start
+
+_start:
+    movzx eax, byte [a]     ; zero-extend: treat a as unsigned
+    ; EAX now = 255
+
+    movsx ebx, byte [a]     ; sign-extend: treat a as signed
+    ; EBX now = -1
+
+    ; exit the program
+    mov eax, 60             ; syscall: exit
+    xor edi, edi            ; status 0
+    syscall
+    </code></pre>
+
+    <h2> Explanation:</h2>
+    <ul>
+        <li><code>0xFF</code> is stored in memory.</li>
+        <li><code>movzx</code> treats it as unsigned, so you get 255.</li>
+        <li><code>movsx</code> treats it as signed, so you get -1.</li>
+    </ul>
+    <p>The same byte (<code>0xFF</code>) gives different results depending on the instruction used.</p>
+</body>
+</html>
