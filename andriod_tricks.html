@@ -185,3 +185,25 @@ Java.perform(function() {
 
   
 </main>
+
+<h2>How Xposed Works</h2>
+<p>
+  When Android boots, it initializes a Zygote process, which is the parent of all system and app processes with the same application binary interface.
+</p>
+<p>
+  Zygote is a special Android OS process that enables shared code across Dalvik/ART VM, in contrast with Java VM where each instance has its own copy of core library files and heap objects.
+</p>
+<p>
+  Efficient and fast app launch is achieved because Zygote starts by preloading all classes and resources that an app may potentially need at runtime into the system’s memory. It then listens for connections on its socket for requests to start new apps. When it receives a request to start an app, it forks itself and launches the new app. It serves as the parent process of all Android apps.
+</p>
+<p>
+  Forking works by creating a process that is an exact copy of the parent process.
+</p>
+<p>
+  Xposed injects itself into Zygote via a custom shared library and modifies Zygote’s behavior. Since all apps are forked from Zygote, every app inherits the Xposed hooks.
+</p>
+
+<h3>ClassLoader Hijack</h3>
+<p>
+  Apps use ClassLoader to load classes from their APKs. Xposed hooks into the ClassLoader to inject its own code.
+</p>

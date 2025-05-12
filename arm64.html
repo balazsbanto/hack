@@ -442,3 +442,33 @@ MOV x29, sp
 LDP x29, x30, [sp], #16
 </code></pre>
 <p>In this example, the <strong>SP</strong> is used to manage the stack, while the <strong>FP</strong> (x29) provides a stable reference for the current function's stack frame.</p>
+
+
+<h1>Main Uses of x0 in AArch64</h1>
+<ul>
+    <li><strong>Function Argument / Return Value</strong>
+        <p><code>x0</code> is used to pass the first argument to a function. It is also used to hold the return value of a function.</p>
+        <pre><code>
+        // Assembly Example
+        mov x0, #42        // first argument = 42
+        bl my_function     // call function
+
+        // when returning:
+        ret                // result should be in x0
+        </code></pre>
+    </li>
+    <li><strong>Syscall Argument</strong>
+        <p>In Linux AArch64, system call arguments are passed in <code>x0–x5</code>, and the syscall number goes in <code>x8</code>.</p>
+        <pre><code>
+        // Example (Linux syscall to exit)
+        mov x0, #0         // exit code 0
+        mov x8, #93        // syscall number for exit
+        svc #0             // make syscall
+        </code></pre>
+    </li>
+    <li><strong>General-Purpose Register</strong>
+        <p>You can use <code>x0</code> for any computation.</p>
+    </li>
+</ul>
+
+

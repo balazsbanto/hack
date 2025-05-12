@@ -127,3 +127,43 @@ _start:
     <p>The same byte (<code>0xFF</code>) gives different results depending on the instruction used.</p>
 </body>
 </html>
+
+<h2>General Purpose Registers in AMD64 and AArch64</h2>
+<p>General-purpose registers are used by the CPU to perform operations and store temporary data. Here’s a comparison of the registers in AMD64 and AArch64:</p>
+
+<h3>AMD64 (x86-64):</h3>
+<ul>
+    <li><strong>Registers:</strong> RAX, RBX, RCX, RDX, RSI, RDI, RBP, RSP, and R8–R15.</li>
+    <li><strong>Purpose:</strong>
+        <ul>
+            <li><code>RAX</code>: Accumulator for arithmetic operations.</li>
+            <li><code>RBX</code>: Base register, often used for addressing.</li>
+            <li><code>RCX</code>: Counter for loops and shifts.</li>
+            <li><code>RDX</code>: Data register, often used in division and I/O operations.</li>
+            <li><code>RSI</code> and <code>RDI</code>: Source and destination for string operations.</li>
+            <li><code>RBP</code>: Base pointer for stack frames.</li>
+            <li><code>RSP</code>: Stack pointer.</li>
+            <li><code>R8–R15</code>: Additional general-purpose registers.</li>
+        </ul>
+    </li>
+</ul>
+
+<h3>AArch64 (ARM 64-bit):</h3>
+<ul>
+    <li><strong>Registers:</strong> X0–X30 and SP (stack pointer).</li>
+    <li><strong>Purpose:</strong>
+        <ul>
+            <li><code>X0–X7</code>: Used for function arguments and return values.</li>
+            <li><code>X8</code>: Indirect result location (e.g., for large return values).</li>
+            <li><code>X9–X15</code>: Temporary registers for general use.</li>
+            <li><code>X16</code> and <code>X17</code>: Intra-procedure-call scratch registers.</li>
+            <li><code>X18</code>: Platform-specific register (e.g., thread pointer).</li>
+            <li><code>X19–X28</code>: Callee-saved registers (preserved across function calls).</li>
+            <li><code>X29</code>: Frame pointer.</li>
+            <li><code>X30</code>: Link register (holds the return address).</li>
+            <li><code>SP</code>: Stack pointer.</li>
+        </ul>
+    </li>
+</ul>
+
+<p>Both architectures have their own conventions and purposes for registers, but they serve similar roles in enabling efficient computation and function calls.</p>
