@@ -1,5 +1,19 @@
-Name: set register
-Link: https://pwn.college/computing-101/assembly-crash-course/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CTF Assembly Challenges</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 1rem; }
+    pre { background: #f7f7f7; padding: 1rem; border-radius: 6px; overflow: auto; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <h1>CTF Assembly Challenges</h1>
+  <pre>
+
+<h2><strong></strong>set register</strong></h2>
 
 Description:
 
@@ -19,12 +33,11 @@ mov rdi, 0x1337
 gcc -nostdlib -o program program.s
 /challenge/run /home/hacker/program
 
-Name: set multiple registers
-Link: https://pwn.college/computing-101/assembly-crash-course/
+<h2><strong></strong>Name: set multiple registers</strong></h2>
 
 Description:
 
-In this level, you will be working with registers. You will be asked to modify or read from registers.
+In this level, you will be working with registers. You will be </section>asked to modify or read from registers.
 
 In this level, you will work with multiple registers. Please set the following:
 
@@ -45,7 +58,7 @@ gcc -nostdlib -o program program.s
 /challenge/run /home/hacker/program
 
 
-NAME: add to register
+<h2><strong></strong>add to register</strong></h2>
 
 In this level, you will be working with registers. You will be asked to modify or read from registers.
 
@@ -57,9 +70,9 @@ For shorthand, when we say A += B, it really means A = A + B.
 
 Here are some useful instructions:
 
-add reg1, reg2 <=> reg1 += reg2
-sub reg1, reg2 <=> reg1 -= reg2
-imul reg1, reg2 <=> reg1 *= reg2
+add reg1, reg2 &lt;=&gt; reg1 += reg2
+sub reg1, reg2 &lt;=&gt; reg1 -= reg2
+imul reg1, reg2 &lt;=&gt; reg1 *= reg2
 div is more complicated, and we will discuss it later. Note: all regX can be replaced by a constant or memory location.
 
 Do the following:
@@ -76,7 +89,7 @@ add rdi, 0x331337
 gcc -nostdlib -o program program.s
 /challenge/run /home/hacker/program
 
-NAME: linear equation registers
+<h2><strong></strong>linear equation registers</strong></h2>
 
 In this level, you will be working with registers. You will be asked to modify or read from registers.
 
@@ -104,7 +117,7 @@ add rdi, rdx
 mov rax, rdi
 
 
-NAME: integer division
+<h2><strong></strong>integer division</strong></h2>
 
 Division in x86 is more special than in normal math. Math here is called integer math, meaning every value is a whole number.
 
@@ -147,7 +160,7 @@ mov rax, rdi
 div rsi
 
 
-NAME: modulo-operation
+<h2><strong></strong>modulo-operation</strong></h2>
 
 Modulo in assembly is another interesting concept!
 
@@ -172,7 +185,7 @@ mov rax, rdi
 div rsi
 mov rax, rdx
 
-NAME: efficient-modulo
+<h2><strong></strong>efficient-modulo</strong></h2>
 
 It turns out that using the div operator to compute the modulo operation is slow!
 
@@ -198,7 +211,7 @@ mov al, dil
 mov bx, si
 
 
-byte-extraction
+<h2><strong></strong>byte-extraction</strong></h2>
 
 In this level, you will be working with bit logic and operations. This will involve heavy use of directly interacting with bits stored in a register or memory location. You will also likely need to make use of the logic instructions in x86: and, or, not, xor.
 
@@ -225,8 +238,8 @@ Shifting has the nice side effect of doing quick multiplication (by 2) or divisi
 
 Here are the important instructions:
 
-shl reg1, reg2 <=> Shift reg1 left by the amount in reg2
-shr reg1, reg2 <=> Shift reg1 right by the amount in reg2
+shl reg1, reg2 &lt;=&gt; Shift reg1 left by the amount in reg2
+shr reg1, reg2 &lt;=&gt; Shift reg1 right by the amount in reg2
 Note: 'reg2' can be replaced by a constant or memory location.
 
 Using only the following instructions:
@@ -249,7 +262,7 @@ shr rdi, 56
 mov al, dil
 
 
-bitwise-and:
+<h2><strong></strong>bitwise-and</strong></h2>
 Without using the following instructions: mov, xchg, please perform the following:
 Set rax to the value of (rdi AND rsi)
 
@@ -262,7 +275,7 @@ xor rax, rax
 or rax, rdi
 
 
-check-even:
+<h2><strong></strong>check-even</strong></h2>
 Using only the following instructions:
 
 and
@@ -289,7 +302,7 @@ and rax, 1
 xor rax, 1
 
 
-memory-increment:
+<h2><strong></strong>memory-increment</strong></h2>
 Please perform the following:
 
 Place the value stored at 0x404000 into rax.
@@ -304,7 +317,7 @@ mov rax, [0x404000]
 add qword ptr [0x404000], 0x1337
 
 
-memory-size-access
+<h2><strong></strong>memory-size-access</strong></h2>
 Recall the following:
 
 The breakdown of the names of memory sizes:
@@ -314,10 +327,10 @@ Word = 2 bytes = 16 bits
 Byte = 1 byte = 8 bits
 In x86_64, you can access each of these sizes when dereferencing an address, just like using bigger or smaller register accesses:
 
-mov al, [address] <=> moves the least significant byte from address to rax
-mov ax, [address] <=> moves the least significant word from address to rax
-mov eax, [address] <=> moves the least significant double word from address to rax
-mov rax, [address] <=> moves the full quad word from address to rax
+mov al, [address] &lt;=&gt; moves the least significant byte from address to rax
+mov ax, [address] &lt;=&gt; moves the least significant word from address to rax
+mov eax, [address] &lt;=&gt; moves the least significant double word from address to rax
+mov rax, [address] &lt;=&gt; moves the full quad word from address to rax
 
 SOLUTION:
 .intel_syntax noprefix
@@ -329,7 +342,7 @@ mov ecx, [0x404000]
 mov rdx, [0x404000]
 
 
-little-endian-write:
+<h2><strong></strong>little-endian-write</strong></h2>
 
 It is worth noting, as you may have noticed, that values are stored in reverse order of how we represent them.
 
@@ -366,7 +379,7 @@ mov rax, 0xc0ffee0000
 mov [rsi], rax
 
 
-memory-sum:
+<h2><strong></strong>memory-sum</strong></h2>
 
 In this level, you will be working with memory. This will require you to read or write to things stored linearly in memory. If you are confused, go look at the linear addressing module in 'ike. You may also be asked to dereference things, possibly multiple times, to things we dynamically put in memory for your use.
 
@@ -406,7 +419,7 @@ add qword ptr [rsi], rax
 add qword ptr [rsi], rbx
 
 
-stack-subtraction:
+<h2><strong></strong>stack-subtraction</strong></h2>
 Using these instructions, take the top value of the stack, subtract rdi from it, then put it back.
 
 SOLUTION:
@@ -428,7 +441,7 @@ pop rsi
 pop rdi
 
 
-average-stack-values:
+<h2><strong></strong>average-stack-values</strong></h2>
 Without using pop, please calculate the average of 4 consecutive quad words stored on the stack. Push the average on the stack.
 
 SOLUTION:
@@ -475,7 +488,7 @@ nop
 target:
     mov rax, 0x1
 
-jump-trmapoline:
+<h2><strong></strong>jump-trmapoline</strong></h2>
 Now, we will combine the two prior levels and perform the following:
 
 Create a two jump trampoline:
@@ -496,7 +509,7 @@ pop rdi
 mov rax, 0x403000
 jmp rax
 
-conditional-jump:
+<h2><strong></strong>conditional-jump</strong></h2>
 Using the above knowledge, implement the following:
 
 if [x] is 0x7f454c46:
@@ -522,7 +535,7 @@ add eax, dword ptr [edi+8]
 add eax, dword ptr [edi+12] 
 jmp end
 
-not_equal:
+<h2><strong></strong>not_equal</strong></h2>
 cmp dword ptr [edi], 0x00005A4D
 jnz fallback
 
@@ -538,7 +551,7 @@ imul eax, dword ptr [edi+12]
 
 end:
 
-# indirect-jump:
+<h2><strong></strong>indirect-jump</strong></h2>
 The last jump type is the indirect jump, often used for switch statements in the real world. Switch statements are a special case of if-statements that use only numbers to determine where the control flow will go.
 
 Here is an example:
@@ -602,7 +615,7 @@ jmp qword ptr [rsi + rdi*8]
 greater_than_3:
 jmp qword ptr [rsi + 32]
 
-# average-loop
+<h2><strong></strong>average-loop</strong></h2>
 
 In a previous level, you computed the average of 4 integer quad words, which was a fixed amount of things to compute. But how do you work with sizes you get when the program is running?
 
@@ -640,7 +653,7 @@ finish:
 xor rdx, rdx
 div  rsi
 
-# count-non-zero:
+<h2><strong></strong>count-non-zero</strong></h2>
 Count the consecutive non-zero bytes in a contiguous region of memory, where:
 
 rdi = memory address of the 1st byte
@@ -671,3 +684,6 @@ count_bytes:
 
 
 finish:
+  </pre>
+</body>
+</html>
