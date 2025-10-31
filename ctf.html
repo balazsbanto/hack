@@ -1,0 +1,673 @@
+Name: set register
+Link: https://pwn.college/computing-101/assembly-crash-course/
+
+Description:
+
+In this level, you will be working with registers. You will be asked to modify or read from registers.
+
+In this level, you will work with registers! Please set the following:
+
+rdi = 0x1337
+
+Solution:
+
+.intel_syntax noprefix
+.global _start
+_start:
+mov rdi, 0x1337
+
+gcc -nostdlib -o program program.s
+/challenge/run /home/hacker/program
+
+Name: set multiple registers
+Link: https://pwn.college/computing-101/assembly-crash-course/
+
+Description:
+
+In this level, you will be working with registers. You will be asked to modify or read from registers.
+
+In this level, you will work with multiple registers. Please set the following:
+
+rax = 0x1337
+r12 = 0xCAFED00D1337BEEF
+rsp = 0x31337
+
+Solution:
+
+.intel_syntax noprefix
+.global _start
+_start:
+mov rax, 0x1337
+mov r12, 0xCAFED00D1337BEEF
+mov rsp, 0x31337
+
+gcc -nostdlib -o program program.s
+/challenge/run /home/hacker/program
+
+
+NAME: add to register
+
+In this level, you will be working with registers. You will be asked to modify or read from registers.
+
+We will set some values in memory dynamically before each run. On each run, the values will change. This means you will need to perform some formulaic operation with registers. We will tell you which registers are set beforehand and where you should put the result. In most cases, it's rax.
+
+Many instructions exist in x86 that allow you to perform all the normal math operations on registers and memory.
+
+For shorthand, when we say A += B, it really means A = A + B.
+
+Here are some useful instructions:
+
+add reg1, reg2 <=> reg1 += reg2
+sub reg1, reg2 <=> reg1 -= reg2
+imul reg1, reg2 <=> reg1 *= reg2
+div is more complicated, and we will discuss it later. Note: all regX can be replaced by a constant or memory location.
+
+Do the following:
+
+Add 0x331337 to rdi
+
+SOLUTION:
+
+.intel_syntax noprefix
+.global _start
+_start:
+add rdi, 0x331337
+
+gcc -nostdlib -o program program.s
+/challenge/run /home/hacker/program
+
+NAME: linear equation registers
+
+In this level, you will be working with registers. You will be asked to modify or read from registers.
+
+We will now set some values in memory dynamically before each run. On each run, the values will change. This means you will need to do some type of formulaic operation with registers. We will tell you which registers are set beforehand and where you should put the result. In most cases, it's rax.
+
+Using your new knowledge, please compute the following:
+
+f(x) = mx + b, where:
+m = rdi
+x = rsi
+b = rdx
+Place the result into rax.
+
+Note: There is an important difference between mul (unsigned multiply) and imul (signed multiply) in terms of which registers are used. Look at the documentation on these instructions to see the difference.
+
+In this case, you will want to use imul.
+
+SOLUTION:
+
+.intel_syntax noprefix
+.global _start
+_start:
+imul rdi, rsi
+add rdi, rdx
+mov rax, rdi
+
+
+NAME: integer division
+
+Division in x86 is more special than in normal math. Math here is called integer math, meaning every value is a whole number.
+
+As an example: 10 / 3 = 3 in integer math.
+
+Why?
+
+Because 3.33 is rounded down to an integer.
+
+The relevant instructions for this level are:
+
+mov rax, reg1
+div reg2
+Note: div is a special instruction that can divide a 128-bit dividend by a 64-bit divisor while storing both the quotient and the remainder, using only one register as an operand.
+
+How does this complex div instruction work and operate on a 128-bit dividend (which is twice as large as a register)?
+
+For the instruction div reg, the following happens:
+
+rax = rdx:rax / reg
+rdx = remainder
+rdx:rax means that rdx will be the upper 64-bits of the 128-bit dividend and rax will be the lower 64-bits of the 128-bit dividend.
+
+You must be careful about what is in rdx and rax before you call div.
+
+Please compute the following:
+
+speed = distance / time, where:
+distance = rdi
+time = rsi
+speed = rax
+
+SOLUTION:
+
+.intel_syntax noprefix
+.global _start
+_start:
+xor rdx, rdx
+mov rax, rdi
+div rsi
+
+
+NAME: modulo-operation
+
+Modulo in assembly is another interesting concept!
+
+x86 allows you to get the remainder after a div operation.
+
+For instance: 10 / 3 results in a remainder of 1.
+
+The remainder is the same as modulo, which is also called the "mod" operator.
+
+In most programming languages, we refer to mod with the symbol %.
+
+Please compute the following: rdi % rsi
+
+Place the value in rax.
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+xor rdx, rdx
+mov rax, rdi
+div rsi
+mov rax, rdx
+
+NAME: efficient-modulo
+
+It turns out that using the div operator to compute the modulo operation is slow!
+
+We can use a math trick to optimize the modulo operator (%). Compilers use this trick a lot.
+
+If we have x % y, and y is a power of 2, such as 2^n, the result will be the lower n bits of x.
+
+Therefore, we can use the lower register byte access to efficiently implement modulo!
+
+Using only the following instruction(s):
+
+mov
+Please compute the following:
+
+rax = rdi % 256
+rbx = rsi % 65536
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+mov al, dil
+mov bx, si
+
+
+byte-extraction
+
+In this level, you will be working with bit logic and operations. This will involve heavy use of directly interacting with bits stored in a register or memory location. You will also likely need to make use of the logic instructions in x86: and, or, not, xor.
+
+Shifting bits around in assembly is another interesting concept!
+
+x86 allows you to 'shift' bits around in a register.
+
+Take, for instance, al, the lowest 8 bits of rax.
+
+The value in al (in bits) is:
+
+rax = 10001010
+If we shift once to the left using the shl instruction:
+
+shl al, 1
+The new value is:
+
+al = 00010100
+Everything shifted to the left, and the highest bit fell off while a new 0 was added to the right side.
+
+You can use this to do special things to the bits you care about.
+
+Shifting has the nice side effect of doing quick multiplication (by 2) or division (by 2), and can also be used to compute modulo.
+
+Here are the important instructions:
+
+shl reg1, reg2 <=> Shift reg1 left by the amount in reg2
+shr reg1, reg2 <=> Shift reg1 right by the amount in reg2
+Note: 'reg2' can be replaced by a constant or memory location.
+
+Using only the following instructions:
+
+mov, shr, shl
+Please perform the following: Set rax to the 5th least significant byte of rdi.
+
+For example:
+
+rdi = | B7 | B6 | B5 | B4 | B3 | B2 | B1 | B0 |
+Set rax to the value of B4
+
+SOLUTION:
+
+.intel_syntax noprefix
+.global _start
+_start:
+shl rdi, 24
+shr rdi, 56
+mov al, dil
+
+
+bitwise-and:
+Without using the following instructions: mov, xchg, please perform the following:
+Set rax to the value of (rdi AND rsi)
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+and rdi, rsi
+xor rax, rax
+or rax, rdi
+
+
+check-even:
+Using only the following instructions:
+
+and
+or
+xor
+Implement the following logic:
+
+if x is even then
+  y = 1
+else
+  y = 0
+Where:
+
+x = rdi
+y = rax
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+xor rax, rax
+or rax, rdi
+and rax, 1
+xor rax, 1
+
+
+memory-increment:
+Please perform the following:
+
+Place the value stored at 0x404000 into rax.
+Increment the value stored at the address 0x404000 by 0x1337.
+Make sure the value in rax is the original value stored at 0x404000 and make sure that [0x404000] now has the incremented value.
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+mov rax, [0x404000]
+add qword ptr [0x404000], 0x1337
+
+
+memory-size-access
+Recall the following:
+
+The breakdown of the names of memory sizes:
+Quad Word = 8 Bytes = 64 bits
+Double Word = 4 bytes = 32 bits
+Word = 2 bytes = 16 bits
+Byte = 1 byte = 8 bits
+In x86_64, you can access each of these sizes when dereferencing an address, just like using bigger or smaller register accesses:
+
+mov al, [address] <=> moves the least significant byte from address to rax
+mov ax, [address] <=> moves the least significant word from address to rax
+mov eax, [address] <=> moves the least significant double word from address to rax
+mov rax, [address] <=> moves the full quad word from address to rax
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+mov al, [0x404000]
+mov bx, [0x404000]
+mov ecx, [0x404000]
+mov rdx, [0x404000]
+
+
+little-endian-write:
+
+It is worth noting, as you may have noticed, that values are stored in reverse order of how we represent them.
+
+As an example, say:
+
+[0x1330] = 0x00000000deadc0de
+If you examined how it actually looked in memory, you would see:
+
+[0x1330] = 0xde
+[0x1331] = 0xc0
+[0x1332] = 0xad
+[0x1333] = 0xde
+[0x1334] = 0x00
+[0x1335] = 0x00
+[0x1336] = 0x00
+[0x1337] = 0x00
+This format of storing things in 'reverse' is intentional in x86, and it's called "Little Endian".
+
+For this challenge, we will give you two addresses created dynamically each run.
+
+The first address will be placed in rdi. The second will be placed in rsi.
+
+Using the earlier mentioned info, perform the following:
+
+Set [rdi] = 0xdeadbeef00001337
+Set [rsi] = 0xc0ffee0000
+Hint: it may require some tricks to assign a big constant to a dereferenced register. Try setting a register to the constant value, then assigning that register to the dereferenced register.
+
+SOLUTION:
+mov rax, 0xdeadbeef00001337
+mov [rdi], rax
+
+mov rax, 0xc0ffee0000
+mov [rsi], rax
+
+
+memory-sum:
+
+In this level, you will be working with memory. This will require you to read or write to things stored linearly in memory. If you are confused, go look at the linear addressing module in 'ike. You may also be asked to dereference things, possibly multiple times, to things we dynamically put in memory for your use.
+
+Recall that memory is stored linearly.
+
+What does that mean?
+
+Say we access the quad word at 0x1337:
+
+[0x1337] = 0x00000000deadbeef
+The real way memory is laid out is byte by byte, little endian:
+
+[0x1337] = 0xef
+[0x1337 + 1] = 0xbe
+[0x1337 + 2] = 0xad
+...
+[0x1337 + 7] = 0x00
+What does this do for us?
+
+Well, it means that we can access things next to each other using offsets, similar to what was shown above.
+
+Say you want the 5th byte from an address, you can access it like:
+
+mov al, [address+4]
+Remember, offsets start at 0.
+
+Perform the following:
+
+Load two consecutive quad words from the address stored in rdi.
+Calculate the sum of the previous steps' quad words.
+Store the sum at the address in rsi.
+
+SOLUTION:
+mov rax, qword ptr [rdi]
+mov rbx, qword ptr[rdi+8]
+add qword ptr [rsi], rax
+add qword ptr [rsi], rbx
+
+
+stack-subtraction:
+Using these instructions, take the top value of the stack, subtract rdi from it, then put it back.
+
+SOLUTION:
+pop rax
+sub rax, rdi
+push rax 
+
+swap-stack values:
+Using only the following instructions:
+
+push
+pop
+Swap values in rdi and rsi.
+
+SOLUTION:
+push rsi
+push rdi
+pop rsi
+pop rdi
+
+
+average-stack-values:
+Without using pop, please calculate the average of 4 consecutive quad words stored on the stack. Push the average on the stack.
+
+SOLUTION:
+xor rax, rax
+add rax, qword ptr [rsp]         
+add rax, qword ptr [rsp + 0x8]     
+add rax, qword ptr [rsp + 0x10]   
+add rax, qword ptr [rsp + 0x18]    
+shr rax, 2
+push rax
+
+absolute-jump:
+In x86, absolute jumps (jump to a specific address) are accomplished by first putting the target address in a register reg, then doing jmp reg.
+
+In this level, we will ask you to do an absolute jump. Perform the following: Jump to the absolute address 0x403000.
+
+SOLUTION:
+mov rax, 0x403000
+jmp rax
+
+relative-jump:
+In this level, we will ask you to do a relative jump. You will need to fill space in your code with something to make this relative jump possible. We suggest using the nop instruction. It's 1 byte long and very predictable.
+
+In fact, the assembler that we're using has a handy .rept directive that you can use to repeat assembly instructions some number of times: GNU Assembler Manual
+
+Useful instructions for this level:
+
+jmp (reg1 | addr | offset)
+nop
+Hint: For the relative jump, look up how to use labels in x86.
+
+Using the above knowledge, perform the following:
+
+Make the first instruction in your code a jmp.
+Make that jmp a relative jump to 0x51 bytes from the current position.
+At the code location where the relative jump will redirect control flow, set rax to 0x1.
+
+SOLUTION:
+jmp target
+.rept 0x51
+nop
+.endr
+
+target:
+    mov rax, 0x1
+
+jump-trmapoline:
+Now, we will combine the two prior levels and perform the following:
+
+Create a two jump trampoline:
+Make the first instruction in your code a jmp.
+Make that jmp a relative jump to 0x51 bytes from its current position.
+At 0x51, write the following code:
+Place the top value on the stack into register rdi.
+jmp to the absolute address 0x403000.
+
+SOLUTION:
+jmp target
+.rept 0x51
+nop
+.endr
+
+target:
+pop rdi
+mov rax, 0x403000
+jmp rax
+
+conditional-jump:
+Using the above knowledge, implement the following:
+
+if [x] is 0x7f454c46:
+    y = [x+4] + [x+8] + [x+12]
+else if [x] is 0x00005A4D:
+    y = [x+4] - [x+8] - [x+12]
+else:
+    y = [x+4] * [x+8] * [x+12]
+Where:
+
+x = edi, y = eax.
+Assume each dereferenced value is a signed dword. This means the values can start as a negative value at each memory position.
+
+A valid solution will use the following at least once:
+
+jmp (any variant), cmp
+
+SOLUTION:
+cmp dword ptr [edi], 0x7f454c46
+jnz not_equal
+mov eax, dword ptr [edi+4]
+add eax, dword ptr [edi+8] 
+add eax, dword ptr [edi+12] 
+jmp end
+
+not_equal:
+cmp dword ptr [edi], 0x00005A4D
+jnz fallback
+
+mov eax, dword ptr [edi+4]
+sub eax, dword ptr [edi+8] 
+sub eax, dword ptr [edi+12]
+jmp end
+
+fallback:
+mov eax, dword ptr [edi+4]
+imul eax, dword ptr [edi+8]
+imul eax, dword ptr [edi+12]
+
+end:
+
+# indirect-jump:
+The last jump type is the indirect jump, often used for switch statements in the real world. Switch statements are a special case of if-statements that use only numbers to determine where the control flow will go.
+
+Here is an example:
+
+switch(number):
+  0: jmp do_thing_0
+  1: jmp do_thing_1
+  2: jmp do_thing_2
+  default: jmp do_default_thing
+The switch in this example works on number, which can either be 0, 1, or 2. If number is not one of those numbers, the default triggers. You can consider this a reduced else-if type structure. In x86, you are already used to using numbers, so it should be no surprise that you can make if statements based on something being an exact number. Additionally, if you know the range of the numbers, a switch statement works very well.
+
+Take, for instance, the existence of a jump table. A jump table is a contiguous section of memory that holds addresses of places to jump.
+
+In the above example, the jump table could look like:
+
+[0x1337] = address of do_thing_0
+[0x1337+0x8] = address of do_thing_1
+[0x1337+0x10] = address of do_thing_2
+[0x1337+0x18] = address of do_default_thing
+Using the jump table, we can greatly reduce the amount of cmps we use. Now all we need to check is if number is greater than 2. If it is, always do:
+
+jmp [0x1337+0x18]
+Otherwise:
+
+jmp [jump_table_address + number * 8]
+Using the above knowledge, implement the following logic:
+
+if rdi is 0:
+  jmp 0x40301e
+else if rdi is 1:
+  jmp 0x4030da
+else if rdi is 2:
+  jmp 0x4031d5
+else if rdi is 3:
+  jmp 0x403268
+else:
+  jmp 0x40332c
+Please do the above with the following constraints:
+
+Assume rdi will NOT be negative.
+Use no more than 1 cmp instruction.
+Use no more than 3 jumps (of any variant).
+We will provide you with the number to 'switch' on in rdi.
+We will provide you with a jump table base address in rsi.
+Here is an example table:
+
+[0x40427c] = 0x40301e (addrs will change)
+[0x404284] = 0x4030da
+[0x40428c] = 0x4031d5
+[0x404294] = 0x403268
+[0x40429c] = 0x40332c
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+cmp rdi, 3
+jg greater_than_3
+jmp qword ptr [rsi + rdi*8]
+
+greater_than_3:
+jmp qword ptr [rsi + 32]
+
+# average-loop
+
+In a previous level, you computed the average of 4 integer quad words, which was a fixed amount of things to compute. But how do you work with sizes you get when the program is running?
+
+In most programming languages, a structure exists called the for-loop, which allows you to execute a set of instructions for a bounded amount of times. The bounded amount can be either known before or during the program's run, with "during" meaning the value is given to you dynamically.
+
+As an example, a for-loop can be used to compute the sum of the numbers 1 to n:
+
+sum = 0
+i = 1
+while i <= n:
+    sum += i
+    i += 1
+Please compute the average of n consecutive quad words, where:
+
+rdi = memory address of the 1st quad word
+rsi = n (amount to loop for)
+rax = average computed
+
+SOLUTION:
+
+.intel_syntax noprefix
+.global _start
+_start:
+mov rax, 0
+mov rcx, 0
+
+loop_start:
+    cmp rcx, rsi
+    jge finish
+    add rax, qword ptr [rdi + 8*rcx]
+    inc rcx
+    jmp loop_start
+
+finish:
+xor rdx, rdx
+div  rsi
+
+# count-non-zero:
+Count the consecutive non-zero bytes in a contiguous region of memory, where:
+
+rdi = memory address of the 1st byte
+rax = number of consecutive non-zero bytes
+Additionally, if rdi = 0, then set rax = 0 (we will check)!
+
+An example test-case, let:
+
+rdi = 0x1000
+[0x1000] = 0x41
+[0x1001] = 0x42
+[0x1002] = 0x43
+[0x1003] = 0x00
+Then: rax = 3 should be set.
+
+SOLUTION:
+.intel_syntax noprefix
+.global _start
+_start:
+mov rax, 0
+test rdi, rdi
+je finish
+count_bytes:
+    test byte ptr [rdi + rax], 0xFF ; this would work as well: cmp byte ptr [rdi + rax], 0
+    je finish
+    inc rax
+    jmp count_bytes
+
+
+finish:
