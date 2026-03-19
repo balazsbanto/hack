@@ -1,14 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>CTF Assembly Challenges</title>
   <style>
-    body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 1rem; }
-    pre { background: #f7f7f7; padding: 1rem; border-radius: 6px; overflow: auto; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      margin: 1rem;
+    }
+
+    pre {
+      background: #f7f7f7;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+    }
   </style>
 </head>
+
 <body>
   <h1>CTF Assembly Challenges</h1>
   <pre>
@@ -684,6 +697,145 @@ count_bytes:
 
 
 finish:
+
+<h2><strong></strong>socket</strong></h2>
+In this challenge, you’ll begin your journey into networking by creating a socket using the socket syscall. 
+A socket is the basic building block for network communication; it serves as an endpoint for sending and receiving data. 
+When you invoke socket, you provide three key arguments: the domain (for example, AF_INET for IPv4), the type (such as SOCK_STREAM for TCP), 
+and the protocol (usually set to 0 to choose the default). Mastering this syscall is important because it lays the foundation for all 
+subsequent network interactions.
+
+SOLUTION:
+
+.intel_syntax noprefix
+
+.global _start
+_start:
+    mov     eax, 41     
+    mov     edi, 2
+    mov     esi, 1
+    mov     edx, 0
+    syscall
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+
+<h2><strong></strong>bind</strong></h2>
+
+After creating a socket, the next step is to assign it a network identity. In this challenge, you will use the bind syscall to connect your socket to a specific IP address and port number. The call requires you to provide the socket file descriptor, a pointer to a struct sockaddr (specifically a struct sockaddr_in for IPv4 that holds fields like the address family, port, and IP address), and the size of that structure. Binding is essential because it ensures your server listens on a known address, making it reachable by clients.
+
+SOLUTION:
+
+.intel_syntax noprefix
+
+.global _start
+_start:
+    mov     eax, 41     
+    mov     edi, 2
+    mov     esi, 1
+    mov     edx, 0
+    syscall
+
+    sub rsp, 16
+    xor rcx, rcx
+    mov qword ptr [rsp+8], rcx
+    mov dword ptr [rsp+4], 0
+    mov word ptr [rsp+2], 0x5000
+    mov word ptr [rsp], 2
+
+    mov edi, eax
+    mov eax, 49
+    mov rsi, rsp
+    mov edx, 16
+    syscall
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+
+<h2><strong></strong>listen</strong></h2>
+With your socket bound to an address, you now need to prepare it to accept incoming connections. The listen syscall transforms your socket into a passive one that awaits client connection requests. It requires the socket’s file descriptor and a backlog parameter, which sets the maximum number of queued connections. This step is vital because without marking the socket as listening, your server wouldn’t be able to receive any connection attempts.
+.intel_syntax noprefix
+
+.global _start
+_start:
+    mov     eax, 41     
+    mov     edi, 2
+    mov     esi, 1
+    mov     edx, 0
+    syscall
+
+    sub rsp, 16
+    xor rcx, rcx
+    mov qword ptr [rsp+8], rcx
+    mov dword ptr [rsp+4], 0
+    mov word ptr [rsp+2], 0x5000
+    mov word ptr [rsp], 2
+
+    mov edi, eax
+    mov eax, 49
+    mov rsi, rsp
+    mov edx, 16
+    syscall
+
+    mov eax, 43
+    xor rsi, rsi
+    xor edx, edx
+    syscall
+
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+<h2><strong></strong>accept</strong></h2>
+Once your socket is listening, it’s time to actively accept incoming connections. In this challenge, you will use the accept syscall, which waits for a client to connect. When a connection is established, it returns a new socket file descriptor dedicated to communication with that client and fills in a provided address structure (such as a struct sockaddr_in) with the client’s details. This process is a critical step in transforming your server from a passive listener into an active communicator.
+
+
+.intel_syntax noprefix
+
+.global _start
+_start:
+    mov     eax, 41     
+    mov     edi, 2
+    mov     esi, 1
+    mov     edx, 0
+    syscall
+
+    sub rsp, 16
+    xor rcx, rcx
+    mov qword ptr [rsp+8], rcx
+    mov dword ptr [rsp+4], 0
+    mov word ptr [rsp+2], 0x5000
+    mov word ptr [rsp], 2
+
+    mov edi, eax
+    mov eax, 49
+    mov rsi, rsp
+    mov edx, 16
+    syscall
+
+    mov eax, 50
+    mov esi, 0
+    syscall
+
+    mov eax, 43
+    xor rsi, rsi
+    xor edx, edx
+    syscall
+
+
+mov eax, 60
+xor rdi, rdi
+syscall
+
+
+
+
   </pre>
 </body>
+
 </html>
